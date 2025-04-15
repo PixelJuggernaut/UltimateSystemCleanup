@@ -1,0 +1,33 @@
+# Change Log
+All notable changes to this project will be documented here.
+
+## [0.3] - 2025-04-15
+### Added
+- Feature to clear browser cache for Google Chrome and Microsoft Edge.
+- Registry optimization for efficient system performance.
+- Scan and report installed programs for manual removal of unused applications.
+- System performance report generation with an energy diagnostic.
+
+### Improved
+- Enhanced cleanup process for broader coverage of junk files and temporary files.
+- Optimized DNS cache clearing for faster internet connectivity.
+
+## [0.2] - 2025-04-15
+### Added
+- Option to check for Windows Updates.
+- Feature to disable unnecessary services (e.g., Superfetch, Windows Search).
+- Power settings optimization for performance mode.
+
+### Fixed
+- Improved junk file cleanup for better efficiency.
+- Enhanced temporary file removal process.
+
+## [0.1] - 2025-04-14
+### Initial Release
+- Basic optimization features including:
+  - Temporary file cleanup.
+  - Disk Cleanup utility.
+  - Disk defragmentation.
+  - DNS cache clearing.
+  - Junk file removal.
+  - Startup program report generation.
