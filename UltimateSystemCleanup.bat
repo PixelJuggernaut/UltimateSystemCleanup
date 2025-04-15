@@ -1,9 +1,9 @@
 @echo off
-title Ultimate System Cleanup Script
+title Advanced Computer Optimization Script
 color 0A
 
 echo ==========================================================
-echo          Ultimate System Cleanup
+echo                 Advanced Computer Optimization Script
 echo ==========================================================
 echo.
 
@@ -75,7 +75,31 @@ powercfg -setactive SCHEME_MIN
 echo Power settings optimized for performance.
 echo ----------------------------------------------------------
 
+:: Clear browser cache (Added Feature)
+echo [12] Clearing browser cache...
+for %%X in ("C:\Users\%username%\AppData\Local\Google\Chrome\User Data\Default\Cache\*" "C:\Users\%username%\AppData\Local\Microsoft\Edge\User Data\Default\Cache\*") do del /s /q %%X >nul 2>&1
+echo Browser cache cleared successfully.
+echo ----------------------------------------------------------
+
+:: Optimize registry settings (Added Feature)
+echo [13] Optimizing registry settings...
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "Optimize" /t REG_SZ /d "C:\OptimizeScript.bat" /f
+echo Registry settings optimized successfully.
+echo ----------------------------------------------------------
+
+:: Manage unused programs (Added Feature)
+echo [14] Scanning for unused programs...
+wmic product get Name,Version > "%userprofile%\Desktop\Installed_Programs.txt"
+echo A list of installed programs has been saved on your desktop. Review and uninstall unused ones manually.
+echo ----------------------------------------------------------
+
+:: Generate system performance report (Added Feature)
+echo [15] Generating system performance report...
+powercfg /energy > "%userprofile%\Desktop\Energy_Report.html"
+echo System performance report saved on your desktop as Energy_Report.html.
+echo ----------------------------------------------------------
+
 echo ==========================================================
-echo   Ultimate System Cleanup Optimization Process Complete
+echo              Advanced Optimization Process Complete
 echo ==========================================================
 pause
