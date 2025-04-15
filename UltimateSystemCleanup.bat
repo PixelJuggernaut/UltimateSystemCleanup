@@ -1,115 +1,81 @@
 @echo off
-setlocal enabledelayedexpansion
-title 🛠 Ultimate System Maintenance & Optimization - 2025
-color 0B
+title Ultimate System Cleanup Script
+color 0A
 
-:: === Setup Log File ===
-set "LogFile=%~dp0SystemCleanup_%DATE:/=-%_%TIME::=-%.log"
-echo Starting cleanup at %DATE% %TIME% > "%LogFile%"
-echo ----------------------------------------------------- >> "%LogFile%"
-
-:: === GUI Toggle Menu ===
-set "doChk=0"
-set "doKill=0"
-set "doShowLog=0"
-
-powershell -Command ^
-"$title = 'Cleanup Options';" ^
-"$msg = 'Select what additional actions you want to perform:';" ^
-"$choices = [System.Windows.Forms.MessageBoxButtons]::YesNoCancel;" ^
-"$diskCheck = [System.Windows.Forms.MessageBox]::Show('Enable Disk Check on Reboot?', 'Option 1', 'YesNo');" ^
-"if ($diskCheck -eq 'Yes') { $env:doChk='1' };" ^
-"$bgKill = [System.Windows.Forms.MessageBox]::Show('Kill OneDrive & Background Services?', 'Option 2', 'YesNo');" ^
-"if ($bgKill -eq 'Yes') { $env:doKill='1' };" ^
-"$showLog = [System.Windows.Forms.MessageBox]::Show('Open Log After Completion?', 'Option 3', 'YesNo');" ^
-"if ($showLog -eq 'Yes') { $env:doShowLog='1' };"
-
-:: === Logging Function ===
-:log
-echo [%TIME%] %~1 >> "%LogFile%"
-goto :eof
-
-echo.
-echo 🚀 Running Cleanup...
+echo ==========================================================
+echo          Ultimate System Cleanup
+echo ==========================================================
 echo.
 
-:: === Cleanup Tasks ===
-call :log "Cleaning TEMP folders..."
-del /f /s /q "%TEMP%\*" >nul 2>&1
-del /f /s /q "C:\Windows\Temp\*" >nul 2>&1
-call :log "TEMP folders cleaned."
+:: Clear temporary files
+echo [1] Cleaning temporary files...
+del /s /q "%temp%\*" >nul 2>&1
+rd /s /q "%temp%" >nul 2>&1
+mkdir "%temp%"
+echo Temporary files cleaned successfully.
+echo ----------------------------------------------------------
 
-call :log "Clearing Prefetch..."
-del /f /s /q "C:\Windows\Prefetch\*" >nul 2>&1
-call :log "Prefetch cleaned."
+:: Run disk cleanup
+echo [2] Running Disk Cleanup...
+cleanmgr /sagerun:1
+echo Disk Cleanup completed successfully.
+echo ----------------------------------------------------------
 
-call :log "Flushing DNS..."
-ipconfig /flushdns >> "%LogFile%"
-call :log "DNS flushed."
+:: Check disk for errors
+echo [3] Checking disk for errors...
+chkdsk C: /f /r
+echo Disk check initiated. If errors are detected, a repair will be scheduled on next restart.
+echo ----------------------------------------------------------
 
-call :log "Emptying Recycle Bin..."
-PowerShell -Command "Clear-RecycleBin -Force" >> "%LogFile%"
-call :log "Recycle Bin emptied."
+:: Defragment the disk
+echo [4] Defragmenting disk...
+defrag C: /U /V
+echo Disk defragmentation completed successfully.
+echo ----------------------------------------------------------
 
-:: === Browser Cache Cleaning ===
-call :log "Cleaning Chrome cache..."
-rmdir /s /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache" 2>>"%LogFile%"
-mkdir "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache"
-call :log "Chrome cache cleaned."
+:: Optimize startup items
+echo [5] Disabling unnecessary startup programs...
+wmic startup get Caption,Command > "%userprofile%\Desktop\Startup_Programs.txt"
+echo A list of startup programs has been saved on your desktop. Review and disable unnecessary ones manually.
+echo ----------------------------------------------------------
 
-call :log "Cleaning Edge cache..."
-rmdir /s /q "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache" 2>>"%LogFile%"
-mkdir "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache"
-call :log "Edge cache cleaned."
+:: Remove junk files
+echo [6] Removing junk files...
+for %%X in (*.bak *.tmp *.log) do del /s /q "C:\%%X" >nul 2>&1
+echo Junk files removed successfully.
+echo ----------------------------------------------------------
 
-call :log "Cleaning Firefox cache..."
-for /d %%d in ("%APPDATA%\Mozilla\Firefox\Profiles\*") do (
-    rmdir /s /q "%%d\cache2" 2>>"%LogFile%"
-    mkdir "%%d\cache2"
-    call :log "Firefox cache cleaned in %%d"
-)
+:: Clear DNS cache
+echo [7] Clearing DNS cache...
+ipconfig /flushdns
+echo DNS cache cleared successfully.
+echo ----------------------------------------------------------
 
-:: === Optimize Drive ===
-call :log "Optimizing C: drive..."
-defrag C: /O >> "%LogFile%"
-call :log "Drive optimization complete."
+:: Update system drivers
+echo [8] Checking for outdated drivers...
+echo Please use Windows Update or a trusted driver updater tool to refresh outdated drivers.
+echo ----------------------------------------------------------
 
-:: === Disk Check Toggle ===
-if "%doChk%"=="1" (
-    call :log "Scheduling disk check..."
-    chkdsk C: /F /R /X >> "%LogFile%"
-) else (
-    call :log "Disk check skipped."
-)
+:: Check for system updates
+echo [9] Checking for Windows Updates...
+usoclient StartScan
+echo Windows Update scan initiated. Install updates if available.
+echo ----------------------------------------------------------
 
-:: === Kill Background Services ===
-if "%doKill%"=="1" (
-    call :log "Killing background services..."
-    taskkill /f /im OneDrive.exe >> "%LogFile%" 2>&1
-    taskkill /f /im SearchIndexer.exe >> "%LogFile%" 2>&1
-    taskkill /f /im OneDriveStandaloneUpdater.exe >> "%LogFile%" 2>&1
-    call :log "Services terminated."
-) else (
-    call :log "Background services untouched."
-)
+:: Disable unnecessary services
+echo [10] Disabling unnecessary services...
+sc config "Superfetch" start= disabled >nul 2>&1
+sc config "Windows Search" start= disabled >nul 2>&1
+echo Unnecessary services disabled successfully.
+echo ----------------------------------------------------------
 
-:: === Restart Explorer ===
-call :log "Restarting Explorer..."
-taskkill /f /im explorer.exe >nul
-start explorer.exe
-call :log "Explorer restarted."
+:: Optimize power settings
+echo [11] Optimizing power settings for performance...
+powercfg -setactive SCHEME_MIN
+echo Power settings optimized for performance.
+echo ----------------------------------------------------------
 
-:: === Done ===
-echo.
-echo -----------------------------------------------------
-echo   ✅ CLEANUP COMPLETE!
-echo   Log saved at: %LogFile%
-echo -----------------------------------------------------
-call :log "Cleanup finished successfully."
-
-if "%doShowLog%"=="1" (
-    start notepad "%LogFile%"
-)
-
+echo ==========================================================
+echo   Ultimate System Cleanup Optimization Process Complete
+echo ==========================================================
 pause
-exit
